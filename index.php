@@ -1,6 +1,8 @@
 <?php
+//phpinfo();
+// error_reporting(E_ALL);
 
-session_start();
+//session_start();
 
 include_once("catalog.php");
 include_once("viewer.php");
@@ -26,7 +28,10 @@ echo '<head>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 	<!-- Latest compiled JavaScript -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>';
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+	<!-- PDF JS -->
+	<script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>';
 echo '<style>
 			p, body, head, h1, h2, h3, h4, div, iframe, img, form, button {
 				-moz-user-select: none;
@@ -43,6 +48,7 @@ echo '<body oncontextmenu="return false;" style="background-color: grey">';
 echo '<div class="container-fluid">';
 echo '<div class="row">';
 echo '<div class="col-md-2">';
+echo '<div class="list-group">';
 $files = scanCatalog('/docs');
 
 printCatalog($files);
@@ -51,54 +57,65 @@ printCatalog($files);
 // 	echo $value;
 // }
 echo '</div>';
+echo '</div>';
+echo '</div>';
 echo '<div class="col-md-10">';
 
-if( strpos( $_GET['file'], '.pdf' ) !== false )
-{
-	$page = 0;
-	echo $page;
+echo '<script src="//js/viewer.js"></script>';
 
-	if (isset($_GET['next']))
-	{
-		$page++;
-	}
+echo '<canvas id="the-canvas"></canvas>';
 
-	if (isset($_GET['prev']))
-	{
-		$page--;
-	}
+// if (isset($_GET['file']))
+// {
+// 	if( strpos( $_GET['file'], '.pdf' ))
+// 	{
+// 		$page = 0;
+// 		echo $page;
 
-	if (isset($_GET['file']))
-	{
-	    generateWatermark('docs/' . $_GET['file'] . '[' . $page . ']', 0);
-	}
+// 		if (isset($_GET['next']))
+// 		{
+// 			$page++;
+// 		}
 
-	echo '<img oncontextmenu="return false;" src="temp/temp0.png" width="40%" height="95%" style="float:middle"></img>';
+// 		if (isset($_GET['prev']))
+// 		{
+// 			$page--;
+// 		}
 
-	if (isset($_GET['file']))
-	{
-	    generateWatermark('docs/' . $_GET['file'] . '[' . $page+1 . ']', 1);
-	}
-	echo '<img oncontextmenu="return false;" src="temp/temp1.png" width="40%" height="95%" style="float:middle"></img>';
-} else {
-	if (isset($_GET['file']))
-	{
-	    generateWatermark('docs/' . $_GET['file'], 0);
-	}
-	echo '<img oncontextmenu="return false;" src="temp/temp0.png" width="40%" height="95%" style="float:middle"></img>';
+// 	    if (!generateWatermark('docs/' . $_GET['file'] . '[' . $page . ']', 0))
+// 	    	echo "Format not found!";
 
-//
-	if (isset($_GET['file']))
-	{
-	    generateWatermark('docs/doc2.png', 1);
-	}
-	echo '<img oncontextmenu="return false;" src="temp/temp1.png" width="40%" height="95%" style="float:middle"></img>';
-//
-}
+// 		//echo '<img oncontextmenu="return false;" class="rounded" src="temp/temp0.png" width="40%" height="95%" style="float:middle"></img>';
+
+// 		// if (isset($_GET['file']))
+// 		// {
+// 		//     if (!generateWatermark('docs/' . $_GET['file'] . '[' . $page+1 . ']', 1))
+// 		//     	echo "Format not found!";
+// 		// }
+// 		// echo '<img oncontextmenu="return false;" src="temp/temp1.png" width="40%" height="95%" style="float:middle"></img>';
+// 	} else {
+// 	    if (!generateWatermark('docs/' . $_GET['file'], 0))
+// 	    	echo "Format not found!";
+
+// 		echo '<img oncontextmenu="return false;" class="rounded" src="temp/temp0.png" width="40%" height="95%" style="float:middle"></img>';
+
+// 	//
+// 		if (isset($_GET['file']))
+// 		{
+// 		    if (!generateWatermark('docs/doc2.png', 1))
+// 				echo "Format not found!";
+// 		}
+// 		echo '<img oncontextmenu="return false;" class="rounded" src="temp/temp1.png" width="40%" height="95%" style="float:middle"></img>';
+// 	//
+// 	}
+// }
 
 echo '<form method="POST">
-<button type="submit" name="prev" value="prev">< Предыдущая страница</button>
-<button type="submit" name="next" value="next" style="float:right">Следующая страница ></button>
+<div class="form-group">
+<button type="submit" class="btn btn-primary" name="prev" value="prev">< Предыдущая страница</button>
+<span style="float:middle">Page: <span id="page_num"></span> / <span id="page_count"></span></span>
+<button type="submit" class="btn btn-primary" name="next" value="next" style="float:right">Следующая страница ></button>
+</div>
 </form>';
 echo '</div>';
 echo '</div>';

@@ -1,3 +1,17 @@
+/*No selection elements*/
+p, body, head, h1, h2, h3, h4, div, iframe, img, form, button, canvas, html, span {
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+p, h1, h2, h3, h4, h5
+{
+	color: #172b4d;
+}
+
 /* Just some base styles not needed for example to function */
 *, html { font-family: Verdana, Arial, Helvetica, sans-serif; }
 
@@ -22,8 +36,8 @@ input, select, textarea, th, td { font-size: 1em; }
 /* CSS Tree menu styles */
 ol.tree
 {
-	padding: 0 0 0 30px;
-	width: 300px;
+	padding: 0 0 0 20px;
+	width: 18vw;
 }
 	li 
 	{ 
