@@ -44,3 +44,4 @@ function generateWatermark()
 
 	return '/temp/temp' . date("Y-m-d_H") . '.png';
 }
+?>
