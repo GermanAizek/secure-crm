@@ -10,11 +10,18 @@ if (isset($_GET["key"])) {
 		    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 		    // sql to create table
-		    $sql = "CREATE TABLE users (id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, login VARCHAR(30) NOT NULL, password VARCHAR(30) NOT NULL, access VARCHAR(20), last_date DATETIME, role VARCHAR(5))";
+		    $sql = "CREATE TABLE users (id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, login VARCHAR(30) NOT NULL, password VARCHAR(30) NOT NULL, access VARCHAR(2000), last_date DATETIME, role VARCHAR(5))";
 
 		    // use exec() because no results are returned
 		    $conn->exec($sql);
-		    echo "Таблица 'users' создана успешно";
+		    echo "Таблица 'users' создана успешно" . <br>;
+
+		    $stmt = $conn->prepare('INSERT INTO users(login,password,role) VALUES(?,?,"admin")');
+			$stmt->execute(array(
+				"admin",
+				$PASSWORD_DATABASE
+			));
+			echo "Пользователь 'admin' создан успешно. Его пароль это пароль от базы данных.";
 		}
 		catch(PDOException $e) {
 		    echo $sql . "<br>" . $e->getMessage();
