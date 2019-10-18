@@ -7,19 +7,22 @@
 		<meta name="keywords" content="защита, просмотр файлов, авторское право">
 		<meta name="description" content="Защищенный просмотр документов. Разработчик: Герман Семенов https://germanaizek.github.io">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="robots" content="all">
+		<meta name="robots" content="none"/>
 		<meta name="copyright" content="Колхоз">
 		
 		<link rel="stylesheet" type="text/css" href="_styles.css" media="screen">
 
 		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+		<!-- <link rel="stylesheet" href="css/bootstrap.min.css"> -->
 
 		<!-- jQuery library -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<!-- <script src="js/jquery-3.4.1.min.js"></script> -->
 
 		<!-- Latest compiled JavaScript -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+		<!-- <script src="js/bootstrap.min.js"></script> -->
 
 		<!-- PDF JS -->
 		<script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
@@ -27,135 +30,43 @@
 	<body oncontextmenu="return false;">
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-md-1" style="background-color: #0747a6; height: 100vh; width: 2.8vw;">
-					<!-- Sidebar -->
-					<button class="btn btn-danger" data-toggle="modal" data-target="#auth" style="height: 60px">
-						<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-					</button>
-
-					<!-- Modal auth -->
-					<div class="modal fade" id="auth" role="dialog">
-						<div class="modal-dialog">
-							<div class="modal-content">
-								<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal">&times;</button>
-									<h4 class="modal-title">Авторизация</h4>
-								</div>
+				<div class="col-xs-12">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">&times;</button>
+								<h4 class="modal-title">Авторизация</h4>
+							</div>
+							<form role="form" id="contactForm" data-toggle="validator">
 								<div class="modal-body">
 									<div class="form-group">
 									  <label for="usr">Имя пользователя:</label>
-									  <input type="text" class="form-control" id="usr">
+									  <input type="text" class="form-control" id="usr" required data-error="NEW ERROR MESSAGE">
 									</div>
 									<div class="form-group">
 									  <label for="pwd">Пароль:</label>
-									  <input type="password" class="form-control" id="pwd">
+									  <input type="password" class="form-control" id="pwd" required>
 									</div>
+									<button type="submit" id="form-submit" class="btn btn-success btn-lg pull-right ">Войти</button>
+							        <div id="msgSubmit" class="h3 text-center hidden"></div>
+							        <div class="clearfix"></div>
 								</div>
 								<div class="modal-footer">
-									<button type="button" class="btn btn-success" data-dismiss="modal">Войти</button>
-									<button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
 								</div>
-							</div>
+							</form>
 						</div>
-					</div>
-
-					<!--  -->
-
-					<button class="btn btn-success" data-toggle="modal" data-target="#search" style="height: 60px">
-						<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-					</button>
-
-					<!-- Modal search -->
-					<div class="modal fade" id="search" role="dialog">
-						<div class="modal-dialog">
-							<div class="modal-content">
-								<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal">&times;</button>
-									<h4 class="modal-title">Поиск</h4>
-								</div>
-								<div class="modal-body">
-									<i class="fas fa-search" aria-hidden="true"></i>
-									<input class="form-control form-control-sm ml-3 w-75" type="text" id="searchText" placeholder="Введите искомую фразу..." aria-label="Search">
-									<input type="checkbox" class="custom-control-input" id="searchInContent">
-									<label class="custom-control-label" for="searchInContent">Искать в тексте всех документов</label>
-								</div>
-								<div class="modal-footer">
-									<button type="button" class="btn btn-success" data-dismiss="modal" id="search-all" data-toggle="modal" data-target="#search-results">Найти</button>
-									<button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<!-- Modal search -->
-					<div class="modal fade" id="search-results" role="dialog">
-						<div class="modal-dialog">
-							<div class="modal-content">
-								<div class="modal-header">
-									<button type="button" class="close" data-dismiss="modal">&times;</button>
-									<h4 class="modal-title">Результаты поиска</h4>
-								</div>
-								<div class="modal-body">
-									<div class="list-group" id="list-search-results">
-									  <!-- <a href="#" class="list-group-item list-group-item-action flex-column">
-									    <div class="d-flex w-100 justify-content-between">
-									      <h5 class="mb-1">Название</h5>
-									    </div>
-									    <p class="mb-1">Текст</p>
-									  </a> -->
-									</div>
-								</div>
-								<div class="modal-footer">
-									<!-- <button type="button" class="btn btn-success" data-dismiss="modal" id="search-all">Найти</button> -->
-									<button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-2" style="background-color: #f4f5f7; height: 100vh; width: 20vw;">
-						<h3>Каталог документов</h3>
-						<?php
-						include_once("catalog.php");
-						include_once('viewer.php');
-						$files = scanCatalog('/docs');
-						printCatalog($files);
-						?>
-						<!-- <script>
-							var allfiles = <?php echo json_encode($files); ?>;
-							setAllFiles(allfiles);
-						</script> -->
-				</div>
-				<div class="col-md-9" style="background-color: #fff">
-					<!-- <canvas id="viewer-window"></canvas> -->
-					  <img src="<?php echo generateWatermark(); ?>" width='30%' style="position: absolute; top: 5%;">
-					  <canvas id="left" class="left"></canvas>
-					  <img src="<?php echo generateWatermark(); ?>" width='30%' style="position: absolute; top: 80%">
-					  <canvas id="right" class="right"></canvas>
-
-
-
-					<div class="col-md-12">
-						<form method="POST">
-							<div class="form-group">
-								<button class="btn btn-primary" id="prev" style="display: none">< Предыдущая страница</button>
-    							<span>Страницы: <span id="page_num"></span> / <span id="page_count"></span></span>
-
-								<button class="btn btn-primary" id="next" style="display: none">Следующая страница ></button>
-								<span style="float: right">Открыты: <span id="pleft"></span> | <span id="pright"></span></span>
-
-								<!-- User scripts -->
-								<script type="text/javascript" src="js/viewer.js"></script>
-							</div>
-						</form>
 					</div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-md-12">
-					<p>by GermanAizek</p>
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12 align-self-center">
+						<p>by GermanAizek</p>
+					</div>
 				</div>
 			</div>
 		</div>
 	</body>
+	<script src="js/validator.min.js"></script>
+	<script src="js/auth.js"></script>
 </html>

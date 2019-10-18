@@ -1,0 +1,222 @@
+<?php
+session_start();
+if (isset($_SESSION['user_id'])) {
+?>
+<html lang="en-GB">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+		<meta charset="utf-8" />
+		<title>Защищенный просмотр</title>
+		<meta name="author" content="GermanAizek">
+		<meta name="keywords" content="защита, просмотр файлов, авторское право">
+		<meta name="description" content="Защищенный просмотр документов. Разработчик: Герман Семенов https://germanaizek.github.io">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="robots" content="none"/>
+		<meta name="copyright" content="Колхоз">
+		
+		<link rel="stylesheet" type="text/css" href="_styles.css" media="screen">
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<!-- Latest compiled JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+		<!-- PDF CSS -->
+		<link rel="stylesheet" href="pdfjs/node_modules/pdfjs-dist/web/pdf_viewer.css">
+		<!-- PDF JS -->
+		<script src="pdfjs/node_modules/pdfjs-dist/build/pdf.js"></script>
+  		<script src="pdfjs/node_modules/pdfjs-dist/web/pdf_viewer.js"></script>
+	</head>
+	<body oncontextmenu="return false;">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-2 h-100" style="background-color: #0747a6; height: 150vh; width: 12%">
+					<div class="modal-content" style="box-shadow: none">
+						<div class="modal-header">
+							<?php echo $_SESSION['user']; ?>
+						</div>
+						<div class="modal-body">
+							<!-- Button auth -->
+							<form action="admin.html">
+								<button type="submit" id="adminButton" class="btn btn-warning" data-toggle="modal" data-target="#auth" style="width: 100%; height: 5vh">
+									<span class="glyphicon glyphicon-user" aria-hidden="true"> Админ</span>
+								</button>
+							</form>
+
+							<!-- Button show/hide catalog -->
+							<button class="btn btn-info" data-toggle="collapse" data-target="#catalogList" style="width: 100%; height: 5vh">
+								<span class="glyphicon glyphicon-list" aria-hidden="true"> Каталог</span>
+							</button>
+
+							<!-- Button search -->
+							<button class="btn btn-success" data-toggle="modal" data-target="#search" style="width: 100%; height: 5vh">
+								<span class="glyphicon glyphicon-search" aria-hidden="true"> Поиск</span>
+							</button>
+
+							<!-- Button logout -->
+							<a href="logout.php">
+								<button class="btn btn-danger" id="logoutButton" onlick="return false;" style="width: 100%; height: 5vh">
+									<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"> Выйти</span>
+								</button>
+							</a>
+						</div>
+					</div>
+
+					<!-- Modal search -->
+					<div class="modal fade" id="search" role="dialog">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">Поиск</h4>
+								</div>
+								<div class="modal-body">
+									<i class="fas fa-search" aria-hidden="true"></i>
+									<input class="form-control form-control-sm ml-3 w-75" type="text" id="searchText" placeholder="Введите искомую фразу..." aria-label="Search">
+									<input type="checkbox" class="custom-control-input" id="searchCaseSens">
+									<label class="custom-control-label" for="searchCaseSens">Чувствителен к регистру</label>
+									<input type="checkbox" class="custom-control-input" id="phraseSearch">
+									<label class="custom-control-label" for="phraseSearch">Поиск целой фразы</label>
+									<!-- <input type="checkbox" class="custom-control-input" id="searchInAll">
+									<label class="custom-control-label" for="searchInAll">Искать в тексте всех документов</label> -->
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-success" id="search-button" data-dismiss="modal">Найти</button>
+									<button type="button" class="btn btn-success" id="searchInAll" data-dismiss="modal">Найти во всех файлах</button>
+									<button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Modal search -->
+					<div class="modal fade" id="search-results" role="dialog">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+									<h4 class="modal-title">Результаты поиска</h4>
+								</div>
+								<div class="modal-body">
+									<div class="list-group" id="list-search-results">
+									  <!-- <a href="#" class="list-group-item list-group-item-action flex-column">
+									    <div class="d-flex w-100 justify-content-between">
+									      <h5 class="mb-1">Название</h5>
+									    </div>
+									    <p class="mb-1">Текст</p>
+									  </a> -->
+									</div>
+								</div>
+								<div class="modal-footer">
+									<!-- <button type="button" class="btn btn-success" data-dismiss="modal" id="search-all">Найти</button> -->
+									<button type="button" class="btn btn-danger" data-dismiss="modal">Отмена</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="modal-content" style="box-shadow: none">
+						<div class="modal-body">
+							<!-- <form> -->
+							<div class="form-group">
+								<label for="sizeDoc">Размер документа</label>
+								<input type="range" min="0.1" max="3" step="0.1" value="0.6" class="form-control-range" id="sizeDoc">
+							</div>
+							<!-- </form> -->
+						</div>
+					</div>
+
+            		<div class="modal-content" id="findBar" style="box-shadow:none" hidden>
+						<div class="modal-body">
+							<!-- <form> -->
+							<div class="form-group">
+								<label>Искать</label>
+								<button type="button" class="btn btn-success" id="findPrev">Предыдущее</span></button>
+								<button type="button" class="btn btn-success" id="findNext">Далее</span></button>
+							</div>
+							<!-- </form> -->
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-10 collapse" id="catalogList" style="background-color: #f4f5f7; height: 100vh;">
+					<h3>Каталог документов</h3>
+			      	<?php
+			      	include('viewer.php');
+			      	$wmark = '/';
+			      	if (isset($_GET["file"])) {
+						$wmark = generateWatermark();
+					}
+
+					include("catalog.php");
+					$catalogs = getAccessCatalogs($_SESSION['user_id']);
+					$catalogs = json_decode($catalogs);
+
+					$id = 0;
+					foreach ($catalogs as $cat) {
+						$files = scanCatalog($cat);
+						printCatalog($files, $cat, $id);
+						$id++;
+					}
+					?>
+					<!-- TODO: Уведомления о новых файлах в каждой категории -->
+				</div>
+				<div class="col-xs-9" style="background-color: #fff">
+					<?php if (isset($_GET["file"]) and isset($_SESSION['user'])) {?>
+					<?php foreach ($catalogs as $cat) { ?>
+					<?php if ($cat == stristr($_GET["file"], '/', true)) { ?>
+					<?php $accessToFile = true; break; ?>
+					<?php } else { ?>
+					<?php $accessToFile = false; ?>
+					<?php } ?>
+					<?php } ?>
+					<?php if ($accessToFile == true) { ?>
+					<?php include("users.php"); ?>
+					<?php $timelogin = json_encode(getTimeLogin($_SESSION['user_id'])); ?>
+					<!-- <?php $timelogin = json_decode($timelogin); ?> -->
+					<?php if ($timelogin < date("Y-m-d H:i:s")) { ?>
+					<div class="alert alert-warning" role="alert"><i class="glyphicon glyphicon-warning-sign"></i> Обновление документов: Вас долго не было, документы обновились. Обратитесь к каталогу для обязательного прочтения.</div>
+					<?php } ?>
+					<div id="viewerContainer">
+						<div id="viewer" class="pdfViewer"></div>
+					</div>
+					
+					<img src="<?php echo $wmark; ?>" width='30%' style="position: fixed; bottom: 0; right: 0">
+
+					<div class="col-xs-12">
+						<form method="POST">
+							<div class="form-group">
+								<button type="button" class="btn btn-primary" id="prev">< Предыдущая страница</button>
+    							<span>Страницы: <span id="page_num"></span> / <span id="page_count"></span></span>
+								<button type="button" class="btn btn-primary" id="next">Следующая страница ></button>
+								<button type="button" class="btn btn-success" id="returnLink">
+									<span>Назад на </span>
+								</button>
+								<select id="returnPagesList">
+									
+								</select>
+								<script type="text/javascript" src="js/viewer.js"></script>
+							</div>
+						</form>
+					</div>
+					<?php } else { ?>
+					<div class="alert alert-danger" role="alert"><i class="glyphicon glyphicon-warning-sign"></i> У ВАС НЕТ ДОСТУПА К ЭТОМУ ДОКУМЕНТУ.</div>
+					<?php } ?>
+					<?php } else { ?>
+					<div class="alert alert-warning" role="alert"><i class="glyphicon glyphicon-warning-sign"></i> Совет: Для просмотра документа нажмите в левой панели "Каталог" и выберите нужный документ.</div>
+					<?php } ?>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 align-self-center">
+					<p>by GermanAizek</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+<?php
+} else {
+ 	header("Location: /");
+}
+?>

@@ -1,0 +1,368 @@
+<?php
+session_start();
+if (isset($_SESSION['user_id'])) {
+
+include_once("users.php");
+if (isAdmin($_SESSION['user_id']) == "admin") {
+?>
+<html lang="en-GB">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+		<meta charset="utf-8" />
+		<title>Админ-панель</title>
+		<meta name="author" content="GermanAizek">
+		<meta name="keywords" content="защита, просмотр файлов, авторское право">
+		<meta name="description" content="Защищенный просмотр документов. Разработчик: Герман Семенов https://germanaizek.github.io">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="robots" content="none"/>
+		<meta name="copyright" content="Колхоз">
+		
+		<link rel="stylesheet" type="text/css" href="_styles.css" media="screen">
+
+		<!-- Latest compiled and minified CSS -->
+		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"> -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+		<!-- Latest compiled JavaScript -->
+		<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> -->
+
+		<!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+		<!-- PDF JS -->
+		<script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
+	</head>
+	<body oncontextmenu="return false;">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-2" style="background-color: #0747a6; height: 150vh; width: 12%">
+					<div class="modal-content" style="box-shadow: none">
+						<div class="modal-header">
+							<?php echo $_SESSION['user']; ?>
+						</div>
+						<div class="modal-body">
+							<!-- Buttons -->
+							<a href="logout.php">
+								<button class="btn btn-danger" id="logoutButton" onlick="return false;" style="width: 100%; height: 5vh">
+									<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"> Выйти</span>
+								</button>
+							</a>
+							<a href="main.html">
+								<button class="btn btn-info" onlick="return false;" style="width: 100%; height: 5vh">
+									<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"> Назад</span>
+								</button>
+							</a>
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-4" style="background-color: #fff">
+					<div id="msgSubmit" class="h2 text-center hidden"></div>
+					<div class="clearfix"></div>
+					<!-- Create new user -->
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Создать нового пользователя</h4>
+						</div>
+						<form role="form" id="createUserForm" data-toggle="validator">
+							<div class="modal-body">
+								<div class="form-group">
+									<label for="log">Имя пользователя:</label>
+									<input type="text" class="form-control" id="usr" required>
+								</div>
+								<div class="form-group">
+									<label for="log">Пароль:</label>
+									<input type="text" class="form-control" id="pwd" required>
+								</div>
+								<div class="form-check">
+									<input type="checkbox" class="form-check-input" id="isAdmin">
+									<label class="form-check-label" for="isAdmin">Назначить администратором</label>
+								</div>
+								<div class="form-group">
+									<label for="access">Права на группы каталогов:</label>
+									<div class="button-group">
+								        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								        	Выберите каталоги
+								        </button>
+										<ul class="dropdown-menu">
+											<?php
+												include("catalog.php");
+												$folders = getFolders('/docs/*');
+												foreach ($folders as $key => $folder)
+												{
+													echo '<a href="#" class="dropdown-item small" data-value="' . substr(strstr($folder, 'docs/'), 5, strlen($folder)) . '" tabIndex="-1"><input type="checkbox"/>&nbsp;';
+													echo substr(strstr($folder, 'docs/'), 5, strlen($folder));
+													echo '</a><br>';
+												}
+											?>
+										</ul>
+								  	</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-success" onclick="setTimeout(window.location.reload(), 1000);">Создать</button>
+							</div>
+						</form>
+					</div>
+					<!-- Delete user -->
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Удалить пользователя</h4>
+						</div>
+						<form role="form" id="deleteUserForm" data-toggle="validator">
+							<div class="modal-body">
+								<div class="form-group">
+									<label>Список пользователей:</label>
+									<div class="dropdown">
+										<button class="btn btn-secondary dropdown-toggle" type="button" id="deleteUserButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											Выберите пользователя
+										</button>
+										<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="deleteUserList">
+											<?php
+												include_once("users.php");
+												$users = getUserList();
+												foreach ($users as $key => $user)
+												{
+													echo '<a class="dropdown-item small">';
+													echo $user;
+													echo '</a><br>';
+												}
+											?>
+										</div>
+									</div>
+								</div>
+								<div class="form-check">
+									<input type="checkbox" class="form-check-input" id="agreeDelUser" required>
+									<label class="form-check-label" for="agreeDelUser">Вы согласны на удаление пользователя из базы?</label>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-danger" onclick="setTimeout(window.location.reload(), 1000);">Удалить</button>
+							</div>
+						</form>
+					</div>
+					<!-- Edit user -->
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Редактировать пользователя</h4>
+						</div>
+						<form role="form" id="editUserForm" data-toggle="validator">
+							<div class="modal-body">
+								<div class="form-group">
+									<label>Список пользователей:</label>
+									<div class="dropdown">
+										<button class="btn btn-secondary dropdown-toggle" type="button" id="editUserButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											Выберите пользователя
+										</button>
+										<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="editUserList">
+											<?php
+												include_once("users.php");
+												$users = getUserList();
+												foreach ($users as $key => $user)
+												{
+													echo '<a class="dropdown-item small">';
+													echo $user;
+													echo '</a><br>';
+												}
+											?>
+										</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="log">Имя пользователя:</label>
+									<input type="text" class="form-control" id="editUsr" required>
+								</div>
+								<div class="form-group">
+									<label for="log">Пароль:</label>
+									<input type="text" class="form-control" id="editPwd" required>
+								</div>
+								<div class="form-check">
+									<input type="checkbox" class="form-check-input" id="editIsAdmin">
+									<label class="form-check-label" for="editIsAdmin">Назначить администратором</label>
+								</div>
+								<div class="form-group">
+									<label for="access">Права на группы каталогов:</label>
+									<div class="button-group">
+								        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								        	Выберите каталоги
+								        </button>
+										<ul class="dropdown-menu">
+											<?php
+												$folders = getFolders('/docs/*');
+												foreach ($folders as $key => $folder)
+												{
+													echo '<a href="#" class="dropdown-item small" data-value="' . substr(strstr($folder, 'docs/'), 5, strlen($folder)) . '" tabIndex="-1"><input type="checkbox"/>&nbsp;';
+													echo substr(strstr($folder, 'docs/'), 5, strlen($folder));
+													echo '</a><br>';
+												}
+											?>
+										</ul>
+								  	</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-info" onclick="setTimeout(window.location.reload(), 1000);">Изменить</button>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div class="col-xs-4" style="background-color: #fff">
+					<!-- Create new catalog -->
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Создать новую группу каталогов</h4>
+						</div>
+						<form role="form" id="createCatalogForm" data-toggle="validator">
+							<div class="modal-body">
+								<div class="form-group">
+									<label for="nam">Название каталога:</label>
+									<input type="text" class="form-control" id="nam" required>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-success" onclick="setTimeout(window.location.reload(), 1000);">Создать</button>
+							</div>
+						</form>
+					</div>
+					<!-- Delete catalog -->
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Удалить группу каталогов</h4>
+						</div>
+						<form role="form" id="deleteCatalogForm" data-toggle="validator">
+							<div class="modal-body">
+								<div class="form-group">
+									<div class="dropdown" id="listCatalogs">
+										<button class="btn btn-secondary dropdown-toggle" type="button" id="deleteCatalogButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											Выберите каталог
+										</button>
+										<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="deleteCatalogList">
+											<?php
+												$folders = getFolders('/docs/*');
+												foreach ($folders as $key => $folder)
+												{
+													echo '<a class="dropdown-item small">';
+													echo substr(strstr($folder, 'docs/'), 5, strlen($folder));
+													echo '</a><br>';
+												}
+											?>
+										</div>
+									</div>
+								</div>
+								<div class="form-check">
+									<input type="checkbox" class="form-check-input" id="agreeDelCat" required>
+									<label class="form-check-label" for="agreeDelCat">Вы согласны на удаление каталога из системы?</label>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-danger" onclick="setTimeout(window.location.reload(), 1000);">Удалить</button>
+							</div>
+						</form>
+					</div>
+					<!-- Added new file -->
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Добавить новый документ</h4>
+						</div>
+						<!-- <form role="form" id="uploadFileForm" data-toggle="validator"> -->
+							<form enctype="multipart/form-data" action="admin.php" method="POST">
+								<div class="modal-body">
+									<div class="form-group">
+										<div class="dropdown" id="listCatalogs">
+											<button class="btn btn-secondary dropdown-toggle" type="button" name="uploadFileButton" id="uploadFileButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												Выберите каталог
+											</button>
+											<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="uploadFileList">
+												<!-- <a class="dropdown-item" href="#">Another action</a>
+												<a class="dropdown-item" href="#">Something else here</a> -->
+												<?php
+													$folders = getFolders('/docs/*');
+													foreach ($folders as $key => $folder)
+													{
+														echo '<a class="dropdown-item small">';
+														echo substr(strstr($folder, 'docs/'), 5, strlen($folder));
+														echo '</a><br>';
+													}
+												?>
+											</div>
+										</div>
+										<!-- <label for="fileToUpload">Загрузка документа:</label> -->
+									</div>
+									<div class="form-group">
+										Каталог:
+										<input type="text" name="catalogUploadFile" id="catalogUploadFile" style="-moz-user-select: none; -ms-user-select: none; -o-user-select: none; -webkit-user-select: none; user-select: none;">
+										<input type="file" name="userfile" id="userfile">
+									</div>
+								</div>
+								<div class="modal-footer">
+									<!-- <script type="text/javascript">
+										var catalog = "admin.php?catalogUpload=" + $("#uploadFileButton").text();
+										document.getElementById('startUploadFile').onclick = function() {
+										   window.location.href=catalog;
+										}​;​
+									</script> -->
+									<button type="submit" class="btn btn-success" id="startUploadFile" onclick="setTimeout(window.location.reload(), 1000);">Начать загрузку</button>
+								</div>
+							</form>
+						<!-- </form> -->
+					</div>
+					<!-- Delete file -->
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">Удалить файл из каталога</h4>
+						</div>
+						<form role="form" id="deleteFileForm" data-toggle="validator">
+							<div class="modal-body">
+								<div class="form-group">
+									<div class="dropdown" id="listCatalogs">
+										<button class="btn btn-secondary dropdown-toggle" type="button" id="deleteFileButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											Выберите файл
+										</button>
+										<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="deleteFileList">
+											<?php
+												$files = getFiles('/docs/*');
+												$files += getFiles('/docs/**/*');
+												foreach ($files as $key => $folder)
+												{
+													echo '<a class="dropdown-item small">';
+													echo substr(strstr($folder, 'docs/'), 5, strlen($folder));
+													echo '</a><br>';
+												}
+											?>
+										</div>
+									</div>
+								</div>
+								<div class="form-check">
+									<input type="checkbox" class="form-check-input" id="agreeFileCat" required>
+									<label class="form-check-label" for="agreeFileCat">Вы согласны на удаление файла из системы?</label>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-danger" onclick="setTimeout(window.location.reload(), 1000);">Удалить</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 align-self-center">
+					<p>by GermanAizek</p>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script src="js/validator.min.js"></script>
+	<script src="js/admin.js"></script>
+</html>
+<?php
+} else {
+	header("Location: /main.html");
+}
+
+} else {
+ 	header("Location: /");
+}
+?>

@@ -1,4 +1,19 @@
 <?php
+session_start();
+
+// get access catalogs for search viewer
+if (isset($_POST['getAccessCatalogs'])) {
+	include_once('catalog.php');
+	$access = json_decode(getAccessCatalogs($_SESSION['user_id']));
+	$files = array();
+	foreach ($access as $cat) {
+		foreach (scanCatalog($cat) as $file) {
+			array_push($files, $file);
+		}
+	}
+
+	print json_encode($files);
+}
 
 function generateWatermark()
 {
@@ -44,4 +59,3 @@ function generateWatermark()
 
 	return '/temp/temp' . date("Y-m-d_H") . '.png';
 }
-?>
