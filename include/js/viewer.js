@@ -1,7 +1,7 @@
 
 let urlObject = new URL(window.location.href);
 let nameFile = new URLSearchParams(urlObject.search);
-var url = "docs/" + nameFile.get('file');
+var url = "../../docs/" + nameFile.get('file');
 // alert(url);
 // TODO: доделай viewer.js
 
@@ -34,8 +34,6 @@ if (isMobile(navigator.userAgent || navigator.vendor || window.opera)) {
   scale = (widthPage/heightPage)*sizeDoc;
 }
 
-// NEW
-
 'use strict';
 
 if (!pdfjsLib.getDocument || !pdfjsViewer.PDFSinglePageViewer) {
@@ -52,8 +50,6 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 //
 var CMAP_URL = '../pdfjs/node_modules/pdfjs-dist/cmaps/';
 var CMAP_PACKED = true;
-
-// var SEARCH_FOR = ''; // try 'Mozilla';
 
 var container = document.getElementById('viewerContainer');
 
@@ -134,6 +130,7 @@ function render(urldoc) {
 
 $("#sizeDoc").on("input change", function() {
   sizeDoc = document.getElementById('sizeDoc').value;
+  document.getElementById('zoom').textContent = sizeDoc;
   render(url);
 });
 

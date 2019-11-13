@@ -1,7 +1,7 @@
-$("#createUserForm").validator().on("submit", function (event) {
+$("#contactForm").validator().on("submit", function (event) {
     if (event.isDefaultPrevented()) {
         // handle the invalid form...
-        //submitMSG(false, "Введите данные для входа");
+        submitMSG(false, "Введите данные для входа");
     } else {
         // everything looks good!
         event.preventDefault();
@@ -17,7 +17,8 @@ function submitForm() {
     $.ajax({
         type: "POST",
         url: "login.php",
-        data: "usr=" + user + "&pwd=" + pass,
+        dataType: 'json',
+        data: {usr: user, pwd: pass},
         success : function(text){
             if (text == "suckcess") {
                 formSuccess();
@@ -27,6 +28,9 @@ function submitForm() {
             if (text == "invalid") {
               formFail();
             }
+        },
+        error: function(data) {
+          alert(data.responseText);
         }
     });
 }
@@ -42,9 +46,9 @@ function formFail() {
 
 function submitMSG(valid, msg) {
     if(valid){
-        var msgClasses = "h4 text-center tada text-success";
+        var msgClasses = "alert alert-success";
     } else {
-        var msgClasses = "h4 text-center text-danger";
+        var msgClasses = "alert alert-danger";
     }
     $("#msgSubmit").removeClass().addClass(msgClasses).text(msg);
 }

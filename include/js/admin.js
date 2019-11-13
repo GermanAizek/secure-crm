@@ -38,6 +38,7 @@ $("#createUserForm").validator().on("submit", function (event) {
 
 function submitCreateUserForm() {
     var user = $("#usr").val();
+    var email = $("#email").val();
     var pass = $("#pwd").val();
     var admin = $("#isAdmin").is(":checked");
     var accessText = accessCatalogs;
@@ -45,7 +46,7 @@ function submitCreateUserForm() {
     $.ajax({
         type: "POST",
         url: "admin.php",
-        data: {usrReg: user, pwdReg: pass, accessCats: accessText, isAdmin: admin},
+        data: {usrReg: user, pwdReg: pass, emailRegister : email, accessCats: accessText, isAdmin: admin},
         success : function(text) {
             if (text == "suckcess") {
                 alert("Пользователь создан");
@@ -72,12 +73,12 @@ function formFail() {
 }
 
 function submitMSG(valid, msg) {
-    if(valid) {
-        var msgClasses = "h4 text-center tada text-success";
+    if(valid){
+        var msgClasses = "alert alert-success";
     } else {
-        var msgClasses = "h4 text-center text-danger";
+        var msgClasses = "alert alert-danger";
     }
-    $("#msgSubmit").removeClass().addClass(msgClasses).text(msg);
+    $("#msgSubmit").addClass(msgClasses).text(msg);
 }
 
 // DELETE USER
