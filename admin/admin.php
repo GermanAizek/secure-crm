@@ -11,11 +11,6 @@ function getCountRows()
 	$stmt = $conn->prepare('SELECT COUNT(*) FROM users');
 	$stmt->execute();
 	return $stmt->fetchColumn();
-
-	
-	//return mysqli_query($conn, 'SELECT COUNT(*) FROM users');
-	//$access = mysqli_query($conn, 'SELECT access FROM users');
-	//$count = mysqli_num_fields($access);
 }
 
 function js_str($s)
@@ -34,25 +29,31 @@ if (isset($_SESSION['user_id'])) {
 	include("config.php");
 
 	// create user
-	if (isset($_POST["usrReg"]) and isset($_POST["pwdReg"]) and isset($_POST["isAdmin"])) {
+	if (isset($_POST["usrReg"]) and isset($_POST["pwdReg"]) and isset($_POST["emailRegister"]) and isset($_POST["isAdmin"])) {
 		try {
+			$userRegister = htmlspecialchars($_POST["usrReg"], ENT_QUOTES);
+			$passRegister = htmlspecialchars($_POST["pwdReg"], ENT_QUOTES);
+			$emailRegister = htmlspecialchars($_POST["emailRegister"], ENT_QUOTES);
+
 		    $conn = new PDO("mysql:host=$SERVER_DATABASE;dbname=$NAME_DATABASE;charset=utf8", $USERNAME_DATABASE, $PASSWORD_DATABASE);
 		    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 		    $accessCatalogs = $_POST['accessCats'];
 
 		    if ($_POST["isAdmin"] == "true") {
-	    		$stmt = $conn->prepare('INSERT INTO users(login,password,access,role) VALUES(?,?,?,"admin")');
+	    		$stmt = $conn->prepare('INSERT INTO users(login,email,password,access,role) VALUES(?,?,?,?,"admin")');
 				$result = $stmt->execute(array(
-					$_POST['usrReg'],
-					$_POST['pwdReg'],
+					$userRegister,
+					$emailRegister,
+					$passRegister,
 					json_encode($accessCatalogs, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)
 				));
 			} else {
-				$stmt = $conn->prepare('INSERT INTO users(login,password,access,role) VALUES(?,?,?,"user")');
+				$stmt = $conn->prepare('INSERT INTO users(login,email,password,access,role) VALUES(?,?,?,?,"user")');
 				$result = $stmt->execute(array(
-					$_POST['usrReg'],
-					$_POST['pwdReg'],
+					$userRegister,
+					$emailRegister,
+					$passRegister,
 					json_encode($accessCatalogs, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)
 				));
 			}
@@ -71,12 +72,14 @@ if (isset($_SESSION['user_id'])) {
 	// delete user
 	if (isset($_POST["usrDel"])) {
 		try {
+			$userDelete = htmlspecialchars($_POST["usrDel"], ENT_QUOTES);
+
 		    $conn = new PDO("mysql:host=$SERVER_DATABASE;dbname=$NAME_DATABASE;charset=utf8", $USERNAME_DATABASE, $PASSWORD_DATABASE);
 		    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 			$stmt = $conn->prepare('DELETE FROM users WHERE login=?');
 			$stmt->execute(array(
-				$_POST['usrDel']
+				$userDelete
 			));
 
 			$result = $stmt->fetch();
@@ -93,28 +96,35 @@ if (isset($_SESSION['user_id'])) {
 	}
 
 	// edit user
-	if (isset($_POST["usrEdit"]) and isset($_POST["pwdEdit"]) and isset($_POST["accessCats"]) and isset($_POST["isAdmin"]) and isset($_POST["usrSelect"])) {
+	if (isset($_POST["usrEdit"]) and isset($_POST["pwdEdit"]) and isset($_POST["emailEdit"]) and isset($_POST["accessCats"]) and isset($_POST["isAdmin"]) and isset($_POST["usrSelect"])) {
 		try {
+			$userEdit = htmlspecialchars($_POST["usrEdit"], ENT_QUOTES);
+			$passEdit = htmlspecialchars($_POST["pwdEdit"], ENT_QUOTES);
+			$emailEdit = htmlspecialchars($_POST["emailEdit"], ENT_QUOTES);
+			$userSelectEdit = htmlspecialchars($_POST["usrSelect"], ENT_QUOTES);
+
 		    $conn = new PDO("mysql:host=$SERVER_DATABASE;dbname=$NAME_DATABASE;charset=utf8", $USERNAME_DATABASE, $PASSWORD_DATABASE);
 		    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 		    $accessCatalogs = $_POST['accessCats'];
 
 		    if ($_POST["isAdmin"] == "true") {
-	    		$stmt = $conn->prepare('UPDATE users SET login=?,password=?,access=?,role="admin" WHERE login=?');
+	    		$stmt = $conn->prepare('UPDATE users SET login=?,email=?,password=?,access=?,role="admin" WHERE login=?');
 				$stmt->execute(array(
-					$_POST['usrEdit'],
-					$_POST['pwdEdit'],
+					$userEdit,
+					$emailEdit,
+					$passEdit,
 					json_encode($accessCatalogs, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES),
-					$_POST["usrSelect"]
+					$userSelectEdit
 				));
 			} else {
-				$stmt = $conn->prepare('UPDATE users SET login=?,password=?,access=?,role="user" WHERE login=?');
+				$stmt = $conn->prepare('UPDATE users SET login=?,email=?,password=?,access=?,role="user" WHERE login=?');
 				$stmt->execute(array(
-					$_POST['usrEdit'],
-					$_POST['pwdEdit'],
+					$userEdit,
+					$emailEdit,
+					$passEdit,
 					json_encode($accessCatalogs, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES),
-					$_POST["usrSelect"]
+					$userSelectEdit
 				));
 			}
 
@@ -150,9 +160,6 @@ if (isset($_SESSION['user_id'])) {
 	// delete catalog
 	if (isset($_POST["catalogDelName"])) {
 		try {
-			// $count = getCountRows();
-			// print json_encode($count);
-
 		    deleteCatalog($_POST["catalogDelName"]);
 
 			$conn = new PDO("mysql:host=$SERVER_DATABASE;dbname=$NAME_DATABASE;charset=utf8", $USERNAME_DATABASE, $PASSWORD_DATABASE);
@@ -161,37 +168,19 @@ if (isset($_SESSION['user_id'])) {
 
 			$count = getCountRows();
 			print json_encode($count);
-			//	$count = +$count;
-
-			// Creates $data Array[]
-			// $data = array(); 
-
-			// while($row = mysqli_fetch_array($result)){
-			//     //inserts received data into "$data" and makes available by array[]index
-			//     $data[] = $row;
-			// }
 
 			for ($i = 0; $i < $count-1; $i++) {
 				$sql = 'SELECT access FROM users LIMIT :skip,:max';
 				$stmt = $conn->prepare($sql);
 				$stmt->bindValue(':skip', $i, PDO::PARAM_INT);
 				$stmt->bindValue(':max', $i+1, PDO::PARAM_INT);
-
-				// $stmt->execute(array(
-				// 	$i-1,
-				// 	$i
-				// ));
 				$stmt->execute();
 				$stmt->setFetchMode(PDO::FETCH_ASSOC);
-				//$result = mysqli_query($conn, 'SELECT access FROM users WHERE 1=1');
 				$result = $stmt->fetch();
 
-				if (! $result = json_decode($result['access'], true)) {
+				if (!$result = json_decode($result['access'], true)) {
 					continue;
 				}
-				//print json_encode($result);
-
-				//var_dump($result);
 
 				if (($key = array_search($_POST["catalogDelName"], $result)) !== false) {
 					unset($result[$key]);
@@ -205,15 +194,8 @@ if (isset($_SESSION['user_id'])) {
 				$stmt->bindValue(':access', js_array($result), PDO::PARAM_STR);
 				$stmt->bindValue(':skip', $i, PDO::PARAM_INT);
 				$stmt->bindValue(':max', $i, PDO::PARAM_INT);
-				// $stmt->execute(array(
-				// 	js_array($result),
-				// 	$i-1,
-				// 	$i
-				// ));
 				$stmt->execute();
 			}
-
-			// TODO: СДЕЛАТЬ УДАЛЕНИЕ КАТАЛОГА У ВСЕХ ПОЛЬЗОВАТЕЛЕЙ
 
 			if ($result == 0) {
 				print json_encode('invalid');
