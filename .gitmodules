@@ -1,0 +1,8 @@
+[submodule "include/PHPMailer"]
+	path = include/PHPMailer
+	url = https://github.com/PHPMailer/PHPMailer
+	branch = master
+[submodule "include/pdfjs"]
+	path = include/pdfjs
+	url = https://github.com/mozilla/pdf.js
+	branch = master
