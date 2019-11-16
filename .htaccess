@@ -1,0 +1,6 @@
+# If scripts installed in server then:
+AddHandler fcgid-script .php .phtml .html .htm
+FCGIWrapper path_to\php-cgi.exe .php
+FCGIWrapper path_to\php-cgi.exe .phtml
+FCGIWrapper path_to\php-cgi.exe .html
+FCGIWrapper path_to\php-cgi.exe .htm
