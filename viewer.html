@@ -1,7 +1,7 @@
 <?php
 	session_start();
 	if (isset($_SESSION['user_id'])) {
-		include('client_config.php');
+    include('client_config.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,12 +11,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-  <title>Главная</title>
-  <!-- fonts theme-->
+  <title>Просмотр документов</title>
+  <!-- Custom fonts for this template-->
   <link href="<?php echo THEME_PATH . $THEME_ACTIVE; ?>/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-  <!-- styles theme-->
+  <!-- Custom styles for this template-->
   <link href="<?php echo THEME_PATH . $THEME_ACTIVE; ?>/css/sb-admin-2.min.css" rel="stylesheet">
+  <!-- PDF CSS -->
+  <link rel="stylesheet" href="<?php echo INCLUDE_PATH; ?>/pdfjs/node_modules/pdfjs-dist/web/pdf_viewer.css">
+  <!-- PDF JS -->
+  <script src="<?php echo INCLUDE_PATH; ?>/pdfjs/node_modules/pdfjs-dist/build/pdf.js"></script>
+  <script src="<?php echo INCLUDE_PATH; ?>/pdfjs/node_modules/pdfjs-dist/web/pdf_viewer.js"></script>
+  <!-- Bootstrap core JavaScript-->
+  <script src="<?php echo THEME_PATH . $THEME_ACTIVE; ?>/vendor/jquery/jquery.min.js"></script>
+  <script src="<?php echo THEME_PATH . $THEME_ACTIVE; ?>/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- Core plugin JavaScript-->
+  <script src="<?php echo THEME_PATH . $THEME_ACTIVE; ?>/vendor/jquery-easing/jquery.easing.min.js"></script>
 </head>
 <body id="page-top">
   <!-- Page Wrapper -->
@@ -37,15 +47,9 @@
 
       <!-- Nav Item - Dashboard -->
       <li class="nav-item active">
-        <a class="nav-link collapsed" href="index.html" data-toggle="collapse" data-target="#collapseMain" aria-expanded="true" aria-controls="collapseMain">
-          <i class="fas fa-fw fa-tachometer-alt"></i>
-          <span>Консоль</span>
-        </a>
-        <div id="collapseMain" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <a class="collapse-item" href="cards.html">Обновления <span class="badge badge-danger badge-counter">1</span></a>
-          </div>
-        </div>
+        <a class="nav-link" href="index.html">
+          <i class="fas fa-fw fa-home"></i>
+          <span>Главная</span></a>
       </li>
 
       <!-- Divider -->
@@ -102,38 +106,7 @@
           <i class="fas fa-fw fa-wrench"></i>
           <span>Старая версия</span>
         </a>
-        <!-- <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Custom Utilities:</h6>
-            <a class="collapse-item" href="utilities-color.html">Colors</a>
-            <a class="collapse-item" href="utilities-border.html">Borders</a>
-            <a class="collapse-item" href="utilities-animation.html">Animations</a>
-            <a class="collapse-item" href="utilities-other.html">Other</a>
-          </div>
-        </div> -->
       </li>
-
-      <!-- Divider -->
-      <!-- <hr class="sidebar-divider"> -->
-
-      <!-- Heading -->
-      <!-- <div class="sidebar-heading">
-        Addons
-      </div> -->
-
-      <!-- Nav Item - Charts -->
-      <!-- <li class="nav-item">
-        <a class="nav-link" href="charts.html">
-          <i class="fas fa-fw fa-chart-area"></i>
-          <span>Charts</span></a>
-      </li> -->
-
-      <!-- Nav Item - Tables -->
-      <!-- <li class="nav-item">
-        <a class="nav-link" href="tables.html">
-          <i class="fas fa-fw fa-table"></i>
-          <span>Tables</span></a>
-      </li> -->
 
       <!-- Divider -->
       <hr class="sidebar-divider d-none d-md-block">
@@ -161,39 +134,49 @@
           </button>
 
           <!-- Topbar Search -->
-          <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+          <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-30 navbar-search">
             <div class="input-group">
-              <input type="text" class="form-control bg-light border-0 small" placeholder="Искать" aria-label="Search" aria-describedby="basic-addon2">
+              <input type="text" class="form-control bg-light border-0 small" placeholder="Искать" id="searchText" aria-label="Search" aria-describedby="basic-addon2">
               <div class="input-group-append">
-                <button class="btn btn-primary" type="button">
+                <button class="btn btn-primary" id="search-button" type="button">
                   <i class="fas fa-search fa-sm"></i>
                 </button>
               </div>
             </div>
+            <div class="form-check">
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input" id="searchCaseSens"><span>Чувствителен к регистру</span>
+              </label>
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input" id="phraseSearch"><span>Поиск целой фразы</span>
+              </label>
+            </div>
+          </form>
+
+          <!-- <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-30">
+            
+          </form> -->
+
+         <button class="btn btn-primary" id="searchInAll" type="button">
+            <i class="fas fa-search fa-sm"></i> вcе
+          </button>
+
+          <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100">
+            <div class="input-group-prepend">
+            <button class="btn btn-primary" id="search-button" type="button">
+              <i class="fas fa-search-minus fa-sm"></i>
+            </button>
+            <input type="range" min="0.3" max="2.0" step="0.1" value="0.6" class="form-control-range" id="sizeDoc">
+            <div class="input-group-append">
+              <button class="btn btn-primary" id="search-button" type="button">
+                <i class="fas fa-search-plus fa-sm"></i>
+              </button>
+            </div>
+          </div>
           </form>
 
           <!-- Topbar Navbar -->
           <ul class="navbar-nav ml-auto">
-
-            <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-            <li class="nav-item dropdown no-arrow d-sm-none">
-              <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-search fa-fw"></i>
-              </a>
-              <!-- Dropdown - Messages -->
-              <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
-                <form class="form-inline mr-auto w-100 navbar-search">
-                  <div class="input-group">
-                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                    <div class="input-group-append">
-                      <button class="btn btn-primary" type="button">
-                        <i class="fas fa-search fa-sm"></i>
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </li>
 
             <!-- Nav Item - Alerts -->
             <li class="nav-item dropdown no-arrow mx-1">
@@ -311,7 +294,7 @@
             <!-- Nav Item - User Information -->
             <li class="nav-item dropdown no-arrow">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="mr-2 d-none d-lg-inline text-gray-600" id="user-nickname"><?php echo $_SESSION['user']; ?></span>
+                <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="user-nickname"><?php echo $_SESSION['user']; ?></span>
                 <img class="img-profile rounded-circle" src="http://колхоз.рф/bitrix/templates/active/img/logo.jpg">
               </a>
               <!-- Dropdown - User Information -->
@@ -321,9 +304,9 @@
                   Профиль
                 </a> -->
                 <?php
-                	include_once("users.php");
-					if (isAdmin($_SESSION['user_id']) == "admin") {
-				?>
+                	include("users.php");
+        					if (isAdmin($_SESSION['user_id']) == "admin") {
+        				?>
                 <a class="dropdown-item" href="admin.html">
                   <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                   Админ панель
@@ -354,45 +337,82 @@
         <div class="container-fluid">
 
           <!-- Page Heading -->
-          <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Консоль</h1>
-            <a href="#" class="d-none d-sm-inline-block">
-            <?php
-            	include('viewer.php');
-				$wmark = generateWatermark();
-            ?>
-            <img src="<?php echo $wmark; ?>"></img>
+          <div class="d-sm-flex justify-content-end mb-10">
+            <!-- <h1 class="h3 mb-0 text-gray-800">Главная</h1> -->
+            <a href="#" class="mb-2">
+              <?php
+              	include('viewer.php');
+  				      $wmark = generateWatermark();
+              ?>
+              <img src="<?php echo $wmark; ?>"></img>
             </a>
           </div>
           
           <div class="row">
-            <div class="col-lg-6 mb-4">
-              <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                  <h6 class="m-0 font-weight-bold text-danger">Внимание</h6>
-                </div>
-                <div class="card-body">
-                  <!-- <div class="text-center">
-                    <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="img/undraw_posting_photo.svg" alt="">
-                  </div> -->
-                  <p>Вы находитесь на недоработанной версии приложения.</p>
-                  <a target="_blank" rel="nofollow" href="oldmain.html">Перейти на старую версию &rarr;</a>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-6 mb-4">
-              <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                  <h6 class="m-0 font-weight-bold text-primary">Что нового?</h6>
-                </div>
-                <div class="card-body">
-                  <!-- <div class="text-center">
-                    <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="img/undraw_posting_photo.svg" alt="">
-                  </div> -->
-                  <p>Обновление <b>v2.0a</b>:<br>- Новый дизайн</p>
-                  <a target="_blank" rel="nofollow" href="https://germanaizek.github.io/">Подробнее об обновлении &rarr;</a>
+            <div class="col-lg-12">
+              <?php 
+                if (isset($_GET["file"])) {
+                  $file = htmlspecialchars($_GET["file"], ENT_QUOTES);
+                  $catalogs = getAccessCatalogs($_SESSION['user_id']);
+                  $catalogs = json_decode($catalogs);
+                  foreach ($catalogs as $cat) {
+                    if ($cat == stristr($_GET["file"], '/', true)) {
+                      $accessToFile = true; break;
+                    } else {
+                      $accessToFile = false;
+                    }
+                  }
+                  if ($accessToFile == true) {
+                    $timelogin = json_encode(getTimeLogin($_SESSION['user_id']));
+                    if ($timelogin < date("Y-m-d H:i:s")) {
+                    ?>
+              <div class="alert alert-warning" role="alert"><i class="glyphicon glyphicon-warning-sign"></i> Обновление документов: Вас долго не было, документы обновились. Обратитесь к каталогу для обязательного прочтения.</div>
+              <?php } ?>
+              <div class="d-flex flex-column">
+                <div id="viewerContainer">
+                  <div id="viewer" class="pdfViewer border rounded"></div>
                 </div>
               </div>
+
+
+              <form method="POST">
+                <div class="form-group">
+                  <button class="btn btn-secondary btn-icon-split" id="prev">
+                    <span class="icon text-white-50">
+                      <i class="fas fa-arrow-left"></i>
+                    </span>
+                    <span class="text">Предыдущая страница</span>
+                  </button>
+                  <button class="btn btn-secondary btn-icon-split" id="next">
+                    <span class="text">Предыдущая страница</span>
+                    <span class="icon text-white-50">
+                      <i class="fas fa-arrow-right"></i>
+                    </span>
+                  </button>
+                  <button class="btn btn-success btn-icon-split" id="returnLink">
+                    <span class="text">Назад на</span>
+                    <span class="icon text-white-50">
+                      <select id="returnPagesList"></select>
+                    </span>
+                  </button>
+                  <span>Страницы: <span id="page_num"></span> / <span id="page_count"></span></span>
+                  <div class="form-group">
+                    <label>Искать</label>
+                    <button type="button" class="btn btn-success" id="findPrev">Назад</span></button>
+                    <button type="button" class="btn btn-success" id="findNext">Далее</span></button>
+                  </div>
+                </div>
+              </form>
+              <?php } else { ?>
+              <div class="alert alert-danger" role="alert"><i class="fa fa-exclamation-triangle "></i> У ВАС НЕТ ДОСТУПА К ЭТОМУ ДОКУМЕНТУ.</div>
+              <?php } ?>
+              <?php } else { ?>
+              <div class="d-flex flex-column">
+                <div class="alert alert-warning" role="alert"><i class="fa fa-exclamation-triangle "></i>
+                  Совет: Для просмотра документа нажмите в левой панели "Каталог" и выберите нужный документ.
+                </div>
+              </div>
+              <?php } ?>
             </div>
           </div>
 
@@ -442,12 +462,7 @@
     </div>
   </div>
 
-  <!-- Bootstrap core JavaScript-->
-  <script src="<?php echo THEME_PATH . $THEME_ACTIVE; ?>/vendor/jquery/jquery.min.js"></script>
-  <script src="<?php echo THEME_PATH . $THEME_ACTIVE; ?>/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Core plugin JavaScript-->
-  <script src="<?php echo THEME_PATH . $THEME_ACTIVE; ?>/vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script type="text/javascript" src="js/viewer.js"></script>
 
   <!-- Custom scripts for all pages-->
   <script src="<?php echo THEME_PATH . $THEME_ACTIVE; ?>/js/sb-admin-2.min.js"></script>
