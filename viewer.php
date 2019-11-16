@@ -30,14 +30,14 @@ function generateWatermark()
 	$draw = new ImagickDraw();
 	$draw->setGravity( Imagick::GRAVITY_CENTER );
 	//$draw->setFont( "./WCManoNegraBta.ttf" );
-	$draw->setFontSize( 22 );
+	$draw->setFontSize( 20 );
 	//$draw->rotate(45);
 
 	$watermark = new Imagick();
 	$properties = $watermark->queryFontMetrics( $draw, $text );
 
-	$wmark['w'] = (int)$properties["textWidth"] + 50;
-	$wmark['h'] = (int)$properties["textHeight"] + 50;
+	$wmark['w'] = (int)$properties["textWidth"];
+	$wmark['h'] = (int)$properties["textHeight"] + 30;
 	
 	$watermark->newImage( $wmark['w'], $wmark['h'], new ImagickPixel( "transparent" ) );
 	

@@ -69,21 +69,22 @@ function scanCatalog($path)
 	});
 }
 
-function printCatalog($files, $cat, $id)
+function printCatalogs($cat)
 {
-	echo '<ol class="tree">
-			<li>';
-	echo '<label id="catalog' . $id . '">' . $cat . '</label> <input type="checkbox" checked />';
-	echo '<ol>';
+	echo '<a class="collapse-item" href="catalog.html?catalog=' . $cat . '">' . $cat . '</a>';
+}
 
+function printFiles($files, $cat)
+{
 	foreach ($files as $key => $value)
 	{
-		echo '<li class="file label label-default"><a href="?file=' . $cat . '/' . $value . '">' . $value . '</a></li>';
+		echo '<tr>';
+		echo '<td><a href="viewer.html?file=' . $cat . '/' . $value . '">' . $value . '</a></td>';
+		echo '<td>' . getDateTimeModifiedFile($cat . '/' . $value) . '</td>';
+		echo '<td>' . getDateTimeCreateFile($cat . '/' . $value) . '</td>';
+		echo '<td>' . getProgramFormat($cat . '/' . $value) . '</td>';
+		echo '</tr>';
 	}
-
-	echo '</ol>';
-	echo '	</li>
-		</ol>';
 }
 
 function getFolders($path)
@@ -109,12 +110,38 @@ function uploadFile($path)
 	}
 }
 
-function getDateTimeUploadFile($filename)
+function getDateTimeModifiedFile($filename)
 {
 	$fulldir = $_SERVER['DOCUMENT_ROOT'] . '/docs/' . $filename;
 
 	if (file_exists($fulldir)) {
-		return date("Y-m-d H:i:s", filemtime($fulldir));
+		return date("d.m.y H:i", filemtime($fulldir));
+	}
+}
+
+function getDateTimeCreateFile($filename)
+{
+	$fulldir = $_SERVER['DOCUMENT_ROOT'] . '/docs/' . $filename;
+
+	if (file_exists($fulldir)) {
+		return date("d.m.Y H:i", filectime($fulldir));
+	}
+}
+
+function getProgramFormat($filename)
+{
+	$fulldir = $_SERVER['DOCUMENT_ROOT'] . '/docs/' . $filename;
+
+	if (file_exists($fulldir)) {
+		$ext = substr($filename, strrpos($filename, '.')+1);
+		if ($ext == 'doc' or $ext == 'docx')
+		{
+			return $ext . ' (Microsoft Word)';
+		}
+		elseif ($ext == 'pdf')
+		{
+			return $ext . ' (Любой браузер)';
+		}
 	}
 }
 
