@@ -2,9 +2,9 @@
   session_start();
   if (isset($_SESSION['user_id'])) {
 
-  include_once("users.php");
+  include("../users.php");
   if (isAdmin($_SESSION['user_id']) == "admin") {
-    include('client_config.php');
+    include("../client_config.php");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -16,15 +16,10 @@
   <meta name="author" content="">
   <title>Главная</title>
   <!-- Custom fonts for this template-->
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="..<?php echo THEME_PATH . $THEME_ACTIVE; ?>/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
   <!-- Custom styles for this template-->
-  <link href="css/sb-admin-2.min.css" rel="stylesheet">
-  <!-- PDF CSS -->
-  <link rel="stylesheet" href="pdfjs/node_modules/pdfjs-dist/web/pdf_viewer.css">
-  <!-- PDF JS -->
-  <script src="pdfjs/node_modules/pdfjs-dist/build/pdf.js"></script>
-  <script src="pdfjs/node_modules/pdfjs-dist/web/pdf_viewer.js"></script>
+  <link href="..<?php echo THEME_PATH . $THEME_ACTIVE; ?>/css/sb-admin-2.min.css" rel="stylesheet">
 </head>
 <body id="page-top">
   <!-- Page Wrapper -->
@@ -33,7 +28,7 @@
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
       <!-- Sidebar - Brand -->
-      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="../index.html">
         <div class="sidebar-brand-icon">
           <i class="fas fa-user-shield"></i>
         </div>
@@ -45,7 +40,7 @@
 
       <!-- Nav Item - Dashboard -->
       <li class="nav-item active">
-        <a class="nav-link collapsed" href="index.html" data-toggle="collapse" data-target="#collapseMain" aria-expanded="true" aria-controls="collapseMain">
+        <a class="nav-link collapsed" href="../index.html" data-toggle="collapse" data-target="#collapseMain" aria-expanded="true" aria-controls="collapseMain">
           <i class="fas fa-fw fa-tachometer-alt"></i>
           <span>Консоль</span>
         </a>
@@ -65,37 +60,41 @@
       </div> -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCatalogs" aria-expanded="true" aria-controls="collapseCatalogs">
           <i class="fas fa-fw fa-folder"></i>
           <span>Каталоги</span>
         </a>
-        <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+        <div id="collapseCatalogs" class="collapse" aria-labelledby="headingCatalogs" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">Доступные вам:</h6>
             <?php
-				include("catalog.php");
-				$catalogs = getAccessCatalogs($_SESSION['user_id']);
-				$catalogs = json_decode($catalogs);
+      				include("../catalog.php");
+      				$catalogs = getAccessCatalogs($_SESSION['user_id']);
+      				$catalogs = json_decode($catalogs);
 
-				foreach ($catalogs as $cat) {
-					$files = scanCatalog($cat);
-					printCatalogs($cat);
-				}
-			?>
+      				foreach ($catalogs as $cat) {
+      					$files = scanCatalog($cat);
+      					printCatalogs($cat, true);
+      				}
+      			?>
           </div>
         </div>
       </li>
 
-      <!-- Nav Item - Pages Collapse Menu -->
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings" aria-expanded="true" aria-controls="collapseSettings">
           <i class="fas fa-fw fa-cog"></i>
           <span>Настройки</span>
         </a>
+        <div id="collapseSettings" class="collapse" aria-labelledby="headingSettings" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <a class="collapse-item" href="settings-admin.html">Настройки системы</a>
+          </div>
+        </div>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="oldmain.html">
+        <a class="nav-link" href="../oldmain.html">
           <i class="fas fa-fw fa-wrench"></i>
           <span>Старая версия</span>
         </a>
@@ -126,7 +125,7 @@
           </button>
 
           <!-- Topbar Search -->
-          <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+          <!-- <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
             <div class="input-group">
               <input type="text" class="form-control bg-light border-0 small" placeholder="Искать" aria-label="Search" aria-describedby="basic-addon2">
               <div class="input-group-append">
@@ -135,7 +134,12 @@
                 </button>
               </div>
             </div>
-          </form>
+          </form> -->
+
+          <div class="form-group">
+            <div id="msgSubmit"></div>
+            <div class="clearfix"></div>
+          </div>
 
           <!-- Topbar Navbar -->
           <ul class="navbar-nav ml-auto">
@@ -196,9 +200,8 @@
                   Профиль
                 </a> -->
                 <?php
-                	include_once("users.php");
-					if (isAdmin($_SESSION['user_id']) == "admin") {
-				?>
+        					if (isAdmin($_SESSION['user_id']) == "admin") {
+        				?>
                 <a class="dropdown-item" href="admin.html">
                   <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                   Админ панель
@@ -233,8 +236,8 @@
             <h1 class="h3 mb-0 text-gray-800">Админ панель</h1>
             <a href="#" class="d-none d-sm-inline-block">
             <?php
-            	include('viewer.php');
-				$wmark = generateWatermark();
+            	include('../viewer.php');
+				      $wmark = generateWatermark();
             ?>
             <img src="<?php echo $wmark; ?>"></img>
             </a>
@@ -293,48 +296,275 @@
             <div class="col-lg-6 mb-4">
               <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                  <h6 class="m-0 font-weight-bold text-primary">Создать нового пользователя</h6>
+                  <h6 class="m-0 font-weight-bold text-primary">Удалить пользователя</h6>
                 </div>
                 <div class="card-body">
-                  <form role="form" id="createUserForm" data-toggle="validator">
-                    <div class="modal-body">
-                      <div class="form-group">
-                        <label for="log">Имя пользователя:</label>
-                        <input type="text" class="form-control" id="usr" required>
+                  <form role="form" id="deleteUserForm" data-toggle="validator">
+                    <div class="form-group">
+                      <label>Список пользователей:</label>
+                      <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="deleteUserButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Выберите пользователя
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="deleteUserList">
+                          <?php
+                            $users = getUserList();
+                            foreach ($users as $key => $user)
+                            {
+                              echo '<a class="dropdown-item small">';
+                              echo $user;
+                              echo '</a><br>';
+                            }
+                          ?>
+                        </div>
                       </div>
-                      <div class="form-group">
+                    </div>
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" id="agreeDelUser" required>
+                      <label class="form-check-label" for="agreeDelUser">Вы согласны на удаление пользователя из базы?</label>
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-block" onclick="setTimeout(window.location.reload(), 1000);">Удалить</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Редактировать пользователя</h6>
+                </div>
+                <div class="card-body">
+                  <form role="form" id="editUserForm" data-toggle="validator">
+                    <div class="form-group">
+                      <label>Список пользователей:</label>
+                      <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="editUserButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Выберите пользователя
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="editUserList">
+                          <?php
+                            $users = getUserList();
+                            foreach ($users as $key => $user)
+                            {
+                              echo '<a class="dropdown-item small">';
+                              echo $user;
+                              echo '</a><br>';
+                            }
+                          ?>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="log">Имя пользователя:</label>
+                      <input type="text" class="form-control" id="editUsr" required>
+                    </div>
+                    <div class="form-group">
                         <label for="log">Email:</label>
-                        <input type="text" class="form-control" id="email" required>
+                        <input type="text" class="form-control" id="editEmail" required>
                       </div>
-                      <div class="form-group">
-                        <label for="log">Пароль:</label>
-                        <input type="text" class="form-control" id="pwd" required>
+                    <div class="form-group">
+                      <label for="log">Пароль:</label>
+                      <input type="text" class="form-control" id="editPwd" required>
+                    </div>
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" id="editIsAdmin">
+                      <label class="form-check-label" for="editIsAdmin">Назначить администратором</label>
+                    </div>
+                    <div class="form-group">
+                      <label for="access">Права на группы каталогов:</label>
+                      <div class="button-group">
+                            <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              Выберите каталоги
+                            </button>
+                        <ul class="dropdown-menu">
+                          <?php
+                            $folders = getFolders('/docs/*');
+                            foreach ($folders as $key => $folder)
+                            {
+                              echo '<a href="#" class="dropdown-item small" data-value="' . substr(strstr($folder, 'docs/'), 5, strlen($folder)) . '" tabIndex="-1"><input type="checkbox"/>&nbsp;';
+                              echo substr(strstr($folder, 'docs/'), 5, strlen($folder));
+                              echo '</a><br>';
+                            }
+                          ?>
+                        </ul>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-info btn-block" onclick="setTimeout(window.location.reload(), 1000);">Изменить</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Создать новую группу каталогов</h6>
+                </div>
+                <div class="card-body">
+                  <form role="form" id="createCatalogForm" data-toggle="validator">
+                    <div class="form-group">
+                      <label for="nam">Название каталога:</label>
+                      <input type="text" class="form-control" id="nam" required>
+                    </div>
+                    <button type="submit" class="btn btn-success" onclick="setTimeout(window.location.reload(), 1000);">Создать</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Удалить группу каталогов</h6>
+                </div>
+                <div class="card-body">
+                  <form role="form" id="deleteCatalogForm" data-toggle="validator">
+                    <div class="form-group">
+                      <div class="dropdown" id="listCatalogs">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="deleteCatalogButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Выберите каталог
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="deleteCatalogList">
+                          <?php
+                            $folders = getFolders('/docs/*');
+                            foreach ($folders as $key => $folder)
+                            {
+                              echo '<a class="dropdown-item small">';
+                              echo substr(strstr($folder, 'docs/'), 5, strlen($folder));
+                              echo '</a><br>';
+                            }
+                          ?>
+                        </div>
                       </div>
                       <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="isAdmin">
-                        <label class="form-check-label" for="isAdmin">Назначить администратором</label>
+                        <input type="checkbox" class="form-check-input" id="agreeDelCat" required>
+                        <label class="form-check-label" for="agreeDelCat">Вы согласны на удаление каталога из системы?</label>
                       </div>
-                      <div class="form-group">
-                        <label for="access">Права на группы каталогов:</label>
-                        <div class="button-group">
-                              <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Выберите каталоги
-                              </button>
-                          <ul class="dropdown-menu">
-                            <?php
-                              $folders = getFolders('/docs/*');
-                              foreach ($folders as $key => $folder)
-                              {
-                                echo '<a href="#" class="dropdown-item small" data-value="' . substr(strstr($folder, 'docs/'), 5, strlen($folder)) . '" tabIndex="-1"><input type="checkbox"/>&nbsp;';
-                                echo substr(strstr($folder, 'docs/'), 5, strlen($folder));
-                                echo '</a><br>';
-                              }
-                              ?>
-                          </ul>
-                          </div>
-                      </div>
-                      <button type="submit" class="btn btn-success btn-block" onclick="setTimeout(window.location.reload(), 1000);">Создать</button>
                     </div>
+                    <button type="submit" class="btn btn-danger" onclick="setTimeout(window.location.reload(), 1000);">Удалить</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Добавить новый документ</h6>
+                </div>
+                <div class="card-body">
+                  <form enctype="multipart/form-data" action="admin.php" method="POST">
+                    <div class="form-group">
+                      <div class="dropdown" id="listCatalogs">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" name="uploadFileButton" id="uploadFileButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Выберите каталог
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="uploadFileList">
+                          <!-- <a class="dropdown-item" href="#">Another action</a>
+                          <a class="dropdown-item" href="#">Something else here</a> -->
+                          <?php
+                            $folders = getFolders('/docs/*');
+                            foreach ($folders as $key => $folder)
+                            {
+                              echo '<a class="dropdown-item small">';
+                              echo substr(strstr($folder, 'docs/'), 5, strlen($folder));
+                              echo '</a><br>';
+                            }
+                          ?>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      Каталог:
+                      <input type="text" class="form-control" name="catalogUploadFile" id="catalogUploadFile" style="-moz-user-select: none; -ms-user-select: none; -o-user-select: none; -webkit-user-select: none; user-select: none;">
+                      <input type="file" name="userfile" id="userfile">
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block" id="startUploadFile" onclick="setTimeout(window.location.reload(), 1000);">Начать загрузку</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Обновить документ</h6>
+                </div>
+                <div class="card-body">
+                  <form enctype="multipart/form-data" action="admin.php" method="POST">
+                    <div class="form-group">
+                      <div class="dropdown" id="listCatalogs">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="updateFileButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Выберите файл для обновления
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="updateFileList">
+                          <?php
+                            $files = getFiles('/docs/*');
+                            $files += getFiles('/docs/**/*');
+                            foreach ($files as $key => $folder)
+                            {
+                              echo '<a class="dropdown-item small">';
+                              echo substr(strstr($folder, 'docs/'), 5, strlen($folder));
+                              echo '</a><br>';
+                            }
+                          ?>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <input type="file" name="updateFile" id="updateFile">
+                    </div>
+                    <div class="form-group">
+                      <label for="access">Какую группу уведомить по системе уведомлений?</label>
+                      <div class="button-group">
+                            <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              Выберите каталоги
+                            </button>
+                        <ul class="dropdown-menu">
+                          <?php
+                            $folders = getFolders('/docs/*');
+                            foreach ($folders as $key => $folder)
+                            {
+                              echo '<a href="#" class="dropdown-item small" data-value="' . substr(strstr($folder, 'docs/'), 5, strlen($folder)) . '" tabIndex="-1"><input type="checkbox"/>&nbsp;';
+                              echo substr(strstr($folder, 'docs/'), 5, strlen($folder));
+                              echo '</a><br>';
+                            }
+                          ?>
+                        </ul>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block" id="startUpdateFile" onclick="setTimeout(window.location.reload(), 1000);">Обновить документ</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Удалить файл из каталога</h6>
+                </div>
+                <div class="card-body">
+                  <form role="form" id="deleteFileForm" data-toggle="validator">
+                    <div class="form-group">
+                      <div class="dropdown" id="listCatalogs">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="deleteFileButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Выберите файл
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="deleteFileList">
+                          <?php
+                            $files = getFiles('/docs/*');
+                            $files += getFiles('/docs/**/*');
+                            foreach ($files as $key => $folder)
+                            {
+                              echo '<a class="dropdown-item small">';
+                              echo substr(strstr($folder, 'docs/'), 5, strlen($folder));
+                              echo '</a><br>';
+                            }
+                          ?>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" id="agreeFileCat" required>
+                      <label class="form-check-label" for="agreeFileCat">Вы согласны на удаление файла из системы?</label>
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-block" onclick="setTimeout(window.location.reload(), 1000);">Удалить</button>
                   </form>
                 </div>
               </div>
@@ -381,29 +611,31 @@
         <div class="modal-body">Нажав кнопку "Выход" вы закончите текущую сессию.</div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">Отмена</button>
-          <a class="btn btn-primary" href="logout.php">Выйти</a>
+          <a class="btn btn-primary" href="../logout.php">Выйти</a>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Bootstrap core JavaScript-->
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="..<?php echo THEME_PATH . $THEME_ACTIVE; ?>/vendor/jquery/jquery.min.js"></script>
+  <script src="..<?php echo THEME_PATH . $THEME_ACTIVE; ?>/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   <!-- Core plugin JavaScript-->
-  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="..<?php echo THEME_PATH . $THEME_ACTIVE; ?>/vendor/jquery-easing/jquery.easing.min.js"></script>
 
   <!-- Custom scripts for all pages-->
-  <script src="js/sb-admin-2.min.js"></script>
+  <script src="..<?php echo THEME_PATH . $THEME_ACTIVE; ?>/js/sb-admin-2.min.js"></script>
 
   <!-- Page level plugins -->
-  <script src="vendor/chart.js/Chart.min.js"></script>
+  <script src="..<?php echo THEME_PATH . $THEME_ACTIVE; ?>/vendor/chart.js/Chart.min.js"></script>
 
   <!-- Page level custom scripts -->
-  <script src="js/demo/chart-area-demo.js"></script>
-  <script src="js/demo/chart-pie-demo.js"></script>
+  <script src="..<?php echo THEME_PATH . $THEME_ACTIVE; ?>/js/demo/chart-area-demo.js"></script>
+  <script src="..<?php echo THEME_PATH . $THEME_ACTIVE; ?>/js/demo/chart-pie-demo.js"></script>
 
+  <script src="..<?php echo INCLUDE_PATH; ?>js/validator.min.js"></script>
+  <script src="..<?php echo INCLUDE_PATH; ?>js/admin.js"></script>
 </body>
 
 </html>

@@ -3,14 +3,19 @@ session_start();
 
 function getCountRows()
 {
-	include("config.php");
+	include("../config.php");
 
-	$conn = new PDO("mysql:host=$SERVER_DATABASE;dbname=$NAME_DATABASE;charset=utf8", $USERNAME_DATABASE, $PASSWORD_DATABASE);
-	$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	try {
+		$conn = new PDO("mysql:host=$SERVER_DATABASE;dbname=$NAME_DATABASE;charset=utf8", $USERNAME_DATABASE, $PASSWORD_DATABASE);
+		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-	$stmt = $conn->prepare('SELECT COUNT(*) FROM users');
-	$stmt->execute();
-	return $stmt->fetchColumn();
+		$stmt = $conn->prepare('SELECT COUNT(*) FROM users');
+		$stmt->execute();
+		return $stmt->fetchColumn();
+	}
+	catch(PDOException $e) {
+		print json_encode($e);
+	}
 }
 
 function js_str($s)
@@ -25,8 +30,9 @@ function js_array($array)
 }
 
 if (isset($_SESSION['user_id'])) {
-	include("catalog.php");
-	include("config.php");
+	include("../catalog.php");
+	include("../notices.php");
+	include("../config.php");
 
 	// create user
 	if (isset($_POST["usrReg"]) and isset($_POST["pwdReg"]) and isset($_POST["emailRegister"]) and isset($_POST["isAdmin"])) {
@@ -232,6 +238,25 @@ if (isset($_SESSION['user_id'])) {
 			    header('Location: http://'.$_SERVER['HTTP_HOST'].'/main.html');
 			} else {
 			    print json_encode('Invalid. Error code: ' . $_FILES['userfile']['error']);
+			}
+		}
+		catch(PDOException $e) {
+		    print json_encode($e);
+		}
+	}
+
+	// update file
+	if (isset($_FILES['updateFile']) and isset($_POST["fileUpdateName"])) {
+		try {
+			if (isset($_POST["updateNotice"])) {
+				noticeHandler($_POST["updateNotice"]);
+			}
+
+		    $updatefile = $_SERVER['DOCUMENT_ROOT'] . '/docs/' . $_POST["fileUpdateName"];
+		    if (move_uploaded_file($_FILES['updateFile']['tmp_name'], $updatefile)) {
+			    header('Location: http://'.$_SERVER['HTTP_HOST'].'/main.html');
+			} else {
+			    print json_encode('Invalid. Error code: ' . $_FILES['updateFile']['error']);
 			}
 		}
 		catch(PDOException $e) {
