@@ -25,7 +25,7 @@ function generateWatermark()
 	$text = md5($datauser);
 
 	// write in admin logs
-	file_put_contents('logs/access.log', '[' . date("Y-m-d H:i:s") . '] ' . $datauser . ' -> ' . $text . "\n", FILE_APPEND);
+	file_put_contents('logs/access.log', '[' . date("Y-m-d H:i") . '] ' . $datauser . ' -> ' . $text . "\n", FILE_APPEND);
 
 	$draw = new ImagickDraw();
 	$draw->setGravity( Imagick::GRAVITY_CENTER );
