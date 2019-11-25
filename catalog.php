@@ -69,9 +69,13 @@ function scanCatalog($path)
 	});
 }
 
-function printCatalogs($cat)
+function printCatalogs($cat, $adminPage)
 {
-	echo '<a class="collapse-item" href="catalog.html?catalog=' . $cat . '">' . $cat . '</a>';
+	if ($adminPage) {
+		echo '<a class="collapse-item" href="../catalog.html?catalog=' . $cat . '">' . $cat . '</a>';
+	} else {
+		echo '<a class="collapse-item" href="catalog.html?catalog=' . $cat . '">' . $cat . '</a>';
+	}
 }
 
 function printFiles($files, $cat)
@@ -130,17 +134,30 @@ function getDateTimeCreateFile($filename)
 
 function getProgramFormat($filename)
 {
+	include("client_config.php");
 	$fulldir = $_SERVER['DOCUMENT_ROOT'] . '/docs/' . $filename;
 
 	if (file_exists($fulldir)) {
 		$ext = substr($filename, strrpos($filename, '.')+1);
 		if ($ext == 'doc' or $ext == 'docx')
 		{
-			return $ext . ' (Microsoft Word)';
+			return '<img src="' . THEME_PATH . $THEME_ACTIVE . '/img/document_word.png' . '"/>' . $ext . ' (Microsoft Word)';
 		}
 		elseif ($ext == 'pdf')
 		{
-			return $ext . ' (Любой браузер)';
+			return '<img src="' . THEME_PATH . $THEME_ACTIVE . '/img/document_pdf.png' . '"/>' . $ext . ' (Любой браузер)';
+		}
+		elseif ($ext == 'txt')
+		{
+			return '<img src="' . THEME_PATH . $THEME_ACTIVE . '/img/document_text.png' . '"/>' . $ext . ' (Любой редактор текста)';
+		}
+		if ($ext == 'zip' or $ext == 'rar')
+		{
+			return '<img src="' . THEME_PATH . $THEME_ACTIVE . '/img/document_archive.png' . '"/>' . $ext . ' (Winrar)';
+		}
+		else
+		{
+			return '<img src="' . THEME_PATH . $THEME_ACTIVE . '/img/document.png' . '"/>' . $ext . ' (Неизвестный тип)';
 		}
 	}
 }

@@ -70,8 +70,8 @@
       				$catalogs = json_decode($catalogs);
 
       				foreach ($catalogs as $cat) {
-      					$files = scanCatalog($cat);
-      					printCatalogs($cat);
+      					$files = scanCatalog($cat, false);
+      					printCatalogs($cat, false);
       				}
       			?>
             <!-- <a class="collapse-item" href="login.html">Login</a>
@@ -156,12 +156,12 @@
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
           <!-- Sidebar Toggle (Topbar) -->
-          <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+          <!-- <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
             <i class="fa fa-bars"></i>
-          </button>
+          </button> -->
 
           <!-- Topbar Search -->
-          <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+          <!-- <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
             <div class="input-group">
               <input type="text" class="form-control bg-light border-0 small" placeholder="Искать" aria-label="Search" aria-describedby="basic-addon2">
               <div class="input-group-append">
@@ -170,7 +170,7 @@
                 </button>
               </div>
             </div>
-          </form>
+          </form> -->
 
           <!-- Topbar Navbar -->
           <ul class="navbar-nav ml-auto">
@@ -265,13 +265,14 @@
                   Профиль
                 </a> -->
                 <?php
-                	include_once("users.php");
-					if (isAdmin($_SESSION['user_id']) == "admin") {
-				?>
-                <a class="dropdown-item" href="admin.html">
+                  include("users.php");
+                  if (isAdmin($_SESSION['user_id']) == "admin") {
+                ?>
+                <a class="dropdown-item" href="admin/admin.html">
                   <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                   Админ панель
                 </a>
+                <div class="dropdown-divider"></div>
                 <?php } ?>
                 <!-- <a class="dropdown-item" href="#">
                   <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -281,7 +282,6 @@
                   <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
                   Activity Log
                 </a> -->
-                <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                   <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                   Выход
@@ -311,7 +311,12 @@
           
           <div class="card shadow mb-4">
             <div class="card-header py-3">
-              <h6 class="m-0 font-weight-bold text-primary">Документы в каталоге <b><?php echo $getCatalog; ?></b></h6>
+              <h6 class="m-0 font-weight-bold text-primary">Документы в каталоге <b>
+                <?php
+                  $getCatalog = htmlspecialchars($_GET["catalog"], ENT_QUOTES);
+                  echo $getCatalog;
+                ?>
+              </b></h6>
             </div>
             <div class="card-body">
               <div class="table-responsive">
@@ -326,7 +331,6 @@
                   </thead>
                   <tbody>
                     <?php
-                      $getCatalog = htmlspecialchars($_GET["catalog"], ENT_QUOTES);
                       $catalogs = getAccessCatalogs($_SESSION['user_id']);
                       $catalogs = json_decode($catalogs);
 
