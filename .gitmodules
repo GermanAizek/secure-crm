@@ -4,5 +4,5 @@
 	branch = master
 [submodule "include/pdfjs"]
 	path = include/pdfjs
-	url = https://github.com/mozilla/pdf.js/tree/master
+	url = https://github.com/mozilla/pdf.js
 	branch = master
